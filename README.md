@@ -20,7 +20,8 @@ dockerhub site: https://hub.docker.com/r/yyabuki/docker-cwllog-generator/
     % docker ps -a --no-trunc > docker_ps
 
 #command:
-docker run --rm \
+
+% docker run --rm \
     -v /path/to/cwl_log_dir:/cwl/log \
     -v /path/to/yaml_dir:/cwl/yaml \
     -v /path/to/result_dir:/cwl/result \
@@ -31,7 +32,7 @@ docker run --rm \
     --cwl_input /cwl/src/'******.yaml'
 
 e.g.
-docker run --rm \
+% docker run --rm \
     -v /work/hisat2/cwl_log_dir:/cwl/log \
     -v /work/hisat2/src/yaml_dir:/cwl/yaml \
     -v /work/hisat2/result:/cwl/result \
@@ -41,7 +42,7 @@ docker run --rm \
     --cwl_log /cwl/log/cwl_stderr.log \
     --cwl_input /cwl/src/hisat2-se.yaml
 
-* How to mount volumes
+=How to mount volumes=
 
   -v /path/to/cwl_log_dir:/cwl/log
     /path/to/cwl_log_dir -- the directory path for storing the log file in which the cwl execution stderr is written.
