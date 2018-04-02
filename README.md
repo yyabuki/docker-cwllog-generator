@@ -1,8 +1,25 @@
 # docker-cwllog-generator
 This program collects the cwl workflow (https://github.com/pitagora-galaxy/cwl) execution metrics from the workflow stderr, and saves the metrics to the JSON log file.
-
 dockerhub site: https://hub.docker.com/r/yyabuki/docker-cwllog-generator/
 
+
+#Prerequisite:
+  1) The cwl workflow should be executed with following four arguments:
+
+    --debug
+    --leave-container
+    --compute-checksum
+    --timestamps 
+
+    e.g.
+    % cwltool --debug --leave-container --compute-checksum --timestamps hisat2-se.cwl hisat2-se.yaml 2> stderr.log
+
+  2) And following two files are needed.
+
+    % docker info > docker_info
+    % docker ps -a --no-trunc > docker_ps
+
+#command:
 docker run --rm \
     -v /path/to/cwl_log_dir:/cwl/log \
     -v /path/to/yaml_dir:/cwl/yaml \
@@ -24,7 +41,7 @@ docker run --rm \
     --cwl_log /cwl/log/cwl_stderr.log \
     --cwl_input /cwl/src/hisat2-se.yaml
 
--How to mount volumes-
+* How to mount volumes
 
   -v /path/to/cwl_log_dir:/cwl/log
     /path/to/cwl_log_dir -- the directory path for storing the log file in which the cwl execution stderr is written.
