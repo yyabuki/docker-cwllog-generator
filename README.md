@@ -1,7 +1,7 @@
 # docker-cwllog-generator
 This program collects the cwl workflow (https://github.com/pitagora-galaxy/cwl) execution metrics from the workflow stderr, and saves the metrics to the JSON log file.
 
-dockerhub site: https://github.com/pitagora-galaxy/cwl/docker-cwllog-generator
+dockerhub site: https://hub.docker.com/r/yyabuki/docker-cwllog-generator/
 
 docker run --rm \
     -v /path/to/cwl_log_dir:/cwl/log \
