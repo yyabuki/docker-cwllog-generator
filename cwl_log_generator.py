@@ -5,11 +5,11 @@ import json
 from collections import OrderedDict
 import argparse
 import yaml
+import json
 
 def get_execution_environment(env_output_file, env_info):
 
     try:
-#        cmd = 'python ' + os.environ.get('CWL_HOME') + 'get_exe_env.py --output_file ' + env_output_file
         cmd = 'python get_exe_env.py --output_file ' + env_output_file
         subprocess.check_call(cmd, shell=True)
     except Exception as e:
@@ -34,6 +34,22 @@ def yaml_to_json(yaml_file):
     json_data = json.dumps(yaml_data, indent=4)
 
     # decode json data in the correct order (using OrderedDict).
+    return json.JSONDecoder(object_pairs_hook=OrderedDict).decode(json_data)
+
+def is_json_format(input_file):
+    try:
+        json.load(file(input_file))
+        return True
+    except Exception:
+        return False
+
+def get_json_contents(input_file):
+
+    f = open(input_file)
+    data = json.load(f)
+    f.close()
+    json_data = json.dumps(data, sort_keys=True, indent=4)
+
     return json.JSONDecoder(object_pairs_hook=OrderedDict).decode(json_data)
 
 def get_input_file_size(yaml_file, size_list):
@@ -235,7 +251,7 @@ def parse_stderr_contents(stderr_log_contents, step_contents, versions, size_lis
                     job_input_lines = job_input_lines + "\n}"
                 continue
             # get docker commands. for container information.
-            if line.startswith('    --env=HOME='):
+            if line.startswith('    --cidfile='):
                 docker_line_hit = True
                 # added. 16.Feb.2018
                 docker_name = ''
@@ -324,8 +340,6 @@ def read_one_line_file(date):
     with open(date, mode='r') as f:
         return f.readline().strip()
 
-
-### added. 26.Mar.2018
 def read_docker_info(docker_info_file):
 
     docker_info = ''
@@ -353,11 +367,8 @@ def write_json(start_date, end_date, container_info_list, stderr_log_contents, s
     workflow['end_date'] = end_date
     workflow['cwlfile'] = step_contents[0][0]
     del step_contents[0]
-    # added. 13.Dec.2017
     workflow['genome_version'] = genome_version
     workflow['input_jobfile'] = inputs_jobs
-#    workflow['debug_output'] = None
-#    workflow['debug_output'] = stderr_log_contents
     workflow['debug_output'] = ''.join(stderr_log_contents)
     ### steps section.
     step = OrderedDict()
@@ -384,7 +395,6 @@ def write_json(start_date, end_date, container_info_list, stderr_log_contents, s
                 container_status = None
             # set contents.
             each_field = OrderedDict()
-#            each_field['platform'] = env_info['instance_type']
             each_field['stepname'] = step_name
             each_field['cwlfile'] = each_cwl_name
             each_field['container_id'] = container_id
@@ -478,7 +488,13 @@ def main():
 
     ### convert yaml data (path setting file) to json format, and
     ### get all settings.
-    inputs_jobs = yaml_to_json(yaml_file)
+    json = is_json_format(yaml_file)
+    inputs_jobs = []
+    if json == False:
+        inputs_jobs = yaml_to_json(yaml_file)
+    else:
+        inputs_jobs = get_json_contents(input_file)
+    
 
     ### get file sizes.
     size_list = {}
